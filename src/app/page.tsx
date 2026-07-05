@@ -112,6 +112,33 @@ function Toggle({ view, setView }: { view: ViewMode; setView: (view: ViewMode) =
   );
 }
 
+function BasisStrip({ result }: { result: ReturnType<typeof calculateFuelComparison> }) {
+  const gallonsFuelPerTco2 = result.litresFuelPerTco2 / 3.785411784;
+
+  return (
+    <section className="basisStrip" aria-label="Model basis">
+      <div>
+        <span>Unit basis</span>
+        <b>1 tonne CO2 from jet fuel combustion</b>
+        <p>The comparison is normalized to a batch of fuel that would emit one tonne of CO2 when burned.</p>
+      </div>
+      <div>
+        <span>Equivalent e-SAF batch</span>
+        <b>
+          {number.format(result.kgFuelPerTco2)} kg · {number.format(result.litresFuelPerTco2)} L ·{' '}
+          {oneDecimal.format(gallonsFuelPerTco2)} gal
+        </b>
+        <p>This is the amount of e-SAF the model prices on the e-fuel side.</p>
+      </div>
+      <div>
+        <span>Carbon accounting</span>
+        <b>1 t captured CO2 input</b>
+        <p>The fuel does not weigh one tonne. It carries carbon sourced from one tonne of captured CO2.</p>
+      </div>
+    </section>
+  );
+}
+
 function CostChart({ assumptions, view }: { assumptions: Assumptions; view: ViewMode }) {
   const result = calculateFuelComparison(assumptions);
   const divisor = view === 'litre' ? result.litresFuelPerTco2 : 1;
@@ -215,6 +242,7 @@ export default function Page() {
   const [copied, setCopied] = useState(false);
   const [jetFuelBenchmark, setJetFuelBenchmark] = useState<JetFuelBenchmark | null>(null);
   const result = useMemo(() => calculateFuelComparison(assumptions), [assumptions]);
+  const gallonsFuelPerTco2 = result.litresFuelPerTco2 / 3.785411784;
 
   useEffect(() => {
     setAssumptions(readAssumptionsFromUrl(window.location.search));
@@ -281,6 +309,8 @@ export default function Page() {
         </div>
       </header>
 
+      <BasisStrip result={result} />
+
       <section className="dashboard" aria-label="Cost comparison dashboard">
         <aside className="panel inputPanel">
           <div className="panelTitle">
@@ -302,7 +332,7 @@ export default function Page() {
           <div className="panelTitle rowTitle">
             <div>
               <h2>Main comparison</h2>
-              <span>Stacked cost components</span>
+              <span>Cost to supply the same 1 tCO2 fuel batch</span>
             </div>
             <Toggle view={view} setView={setView} />
           </div>
@@ -316,13 +346,13 @@ export default function Page() {
 
         <aside className="metricsRail">
           <MetricCard
-            label="E-fuel cost"
+            label="E-fuel batch"
             value={perTco2(result.efuelCostUsdPerTco2)}
             sub={perLitre(result.efuelCostUsdPerTco2 / result.litresFuelPerTco2)}
             tone="warm"
           />
           <MetricCard
-            label="Fossil jet + DACCS"
+            label="Fossil + DACCS batch"
             value={perTco2(result.bauCdrCostUsdPerTco2)}
             sub={perLitre(result.bauCdrCostUsdPerTco2 / result.litresFuelPerTco2)}
             tone="green"
@@ -336,9 +366,10 @@ export default function Page() {
           <MetricCard label="Break-even H2 cost" value={`${usdTwo.format(result.breakEvenH2CostUsdPerKg)}/kg`} />
           <MetricCard label="Break-even jet fuel price" value={`${usd.format(result.breakEvenJetFuelUsdPerBbl)}/bbl`} />
           <div className="conversionBox">
-            <b>Per tonne of CO2</b>
-            <span>{number.format(result.kgFuelPerTco2)} kg jet fuel</span>
+            <b>One tCO2 fuel batch</b>
+            <span>{number.format(result.kgFuelPerTco2)} kg e-SAF or jet fuel</span>
             <span>{number.format(result.litresFuelPerTco2)} litres</span>
+            <span>{oneDecimal.format(gallonsFuelPerTco2)} US gallons</span>
             <span>{oneDecimal.format(result.gjFuelPerTco2)} GJ</span>
           </div>
         </aside>
@@ -365,20 +396,36 @@ export default function Page() {
 
       <section className="explainGrid">
         <div className="copyBlock">
-          <h2>Why the gap opens</h2>
+          <h2>How e-fuel cost is calculated</h2>
           <p>
-            The core reason e-fuels are expensive is hydrogen. In the default case, hydrogen alone contributes more
-            than {perTco2(result.h2CostComponent)}, which is higher than much of the full fossil jet + DACCS pathway.
-            E-fuels become competitive mainly when H2 is very cheap, fossil jet fuel is very expensive, or storage
-            remains much more expensive than the e-fuel synthesis premium.
+            The Robert Hoglund spreadsheet normalizes both pathways to one tonne of CO2 from jet fuel combustion.
+            Using 3.16 kgCO2/kg fuel and 0.8 kg/L density, that is {number.format(result.kgFuelPerTco2)} kg,{' '}
+            {number.format(result.litresFuelPerTco2)} litres, or {oneDecimal.format(gallonsFuelPerTco2)} gallons of
+            jet-fuel-equivalent e-SAF.
+          </p>
+          <p>
+            On the e-fuel side, the model prices the DAC CO2 feedstock, the fixed hydrogen requirement, and synthesis
+            for that fuel batch. On the fossil pathway, it prices the same amount of fossil jet fuel plus DAC CO2 and
+            storage to remove the combustion CO2.
           </p>
         </div>
         <div className="equationPanel">
           <div>
-            <span>E-fuel = DAC CO2 feedstock + H2 + synthesis</span>
+            <span>E-fuel batch = DAC CO2 feedstock + H2 + synthesis</span>
             <b>
-              {usd.format(result.co2FeedstockComponent)} + {usd.format(result.h2CostComponent)} +{' '}
-              {usd.format(result.synthesisComponent)} = {perTco2(result.efuelCostUsdPerTco2)}
+              {usd.format(result.co2FeedstockComponent)} + {number.format(assumptions.h2KgPerTco2)} kg H2 ×{' '}
+              {usdTwo.format(assumptions.h2CostUsdPerKg)} + {usd.format(result.synthesisComponent)} ={' '}
+              {perTco2(result.efuelCostUsdPerTco2)}
+            </b>
+            <small>
+              The "tCO2" unit means the fuel batch that emits 1 tCO2 when burned, not one tonne of fuel mass.
+            </small>
+          </div>
+          <div>
+            <span>Fuel conversion</span>
+            <b>
+              1,000 kgCO2 ÷ {oneDecimal.format(assumptions.jetFuelCo2KgPerKgFuel)} kgCO2/kg ={' '}
+              {number.format(result.kgFuelPerTco2)} kg fuel = {number.format(result.litresFuelPerTco2)} L
             </b>
           </div>
           <div>
@@ -445,8 +492,9 @@ export default function Page() {
           <p>
             This model is based on the cost-comparison logic from Robert Hoglund and Sandilya Sivaraju's analysis
             "Removals are better than some reductions - The case of electrofuels for aviation" and the accompanying
-            calculator. The default values here are updated to a today-like central case and should be treated as
-            editable assumptions, not forecasts.
+            calculator. Their original model states "1 tonne of CO2 = 396.8 liter / 104.5 gallons of fuel / 13.6 GJ";
+            this page uses the same normalization, with current editable assumptions. Defaults should be treated as
+            assumptions, not forecasts.
           </p>
           <p>
             The jet fuel benchmark is pulled at deploy time from FRED/EIA weekly U.S. Gulf Coast kerosene-type jet
