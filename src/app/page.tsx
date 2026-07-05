@@ -225,7 +225,10 @@ export default function Page() {
 
     async function loadJetFuelBenchmark() {
       try {
-        const response = await fetch(new URL('data/jet-fuel-price.json', window.location.href), {
+        const url = new URL('data/jet-fuel-price.json', window.location.href);
+        url.searchParams.set('v', String(Date.now()));
+        const response = await fetch(url, {
+          cache: 'no-store',
           signal: controller.signal,
         });
         if (!response.ok) return;
