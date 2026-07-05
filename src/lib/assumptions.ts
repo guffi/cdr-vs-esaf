@@ -1,11 +1,10 @@
 export type Assumptions = {
-  h2CostEurPerKg: number;
+  h2CostUsdPerKg: number;
   h2KgPerTco2: number;
-  co2FeedstockCostEurPerTco2: number;
-  dacStorageCostEurPerTco2: number;
+  co2FeedstockCostUsdPerTco2: number;
+  dacStorageCostUsdPerTco2: number;
   jetFuelPriceUsdPerBbl: number;
-  eurUsd: number;
-  synthesisCostEurPerGJ: number;
+  synthesisCostUsdPerGJ: number;
   jetFuelCo2KgPerKgFuel: number;
   jetFuelDensityKgPerL: number;
   litresPerBarrel: number;
@@ -13,13 +12,12 @@ export type Assumptions = {
 };
 
 export const defaultAssumptions: Assumptions = {
-  h2CostEurPerKg: 6.7,
+  h2CostUsdPerKg: 3.5,
   h2KgPerTco2: 173,
-  co2FeedstockCostEurPerTco2: 450,
-  dacStorageCostEurPerTco2: 500,
+  co2FeedstockCostUsdPerTco2: 300,
+  dacStorageCostUsdPerTco2: 500,
   jetFuelPriceUsdPerBbl: 116.63,
-  eurUsd: 1.14,
-  synthesisCostEurPerGJ: 8.3,
+  synthesisCostUsdPerGJ: 10,
   jetFuelCo2KgPerKgFuel: 3.16,
   jetFuelDensityKgPerL: 0.8,
   litresPerBarrel: 159,
@@ -27,13 +25,11 @@ export const defaultAssumptions: Assumptions = {
 };
 
 export const editableKeys = [
-  'h2CostEurPerKg',
-  'h2KgPerTco2',
-  'co2FeedstockCostEurPerTco2',
-  'dacStorageCostEurPerTco2',
+  'h2CostUsdPerKg',
+  'co2FeedstockCostUsdPerTco2',
+  'dacStorageCostUsdPerTco2',
   'jetFuelPriceUsdPerBbl',
-  'eurUsd',
-  'synthesisCostEurPerGJ',
+  'synthesisCostUsdPerGJ',
 ] as const;
 
 export type EditableKey = (typeof editableKeys)[number];
@@ -48,40 +44,31 @@ export const inputFields: Array<{
   help: string;
 }> = [
   {
-    key: 'h2CostEurPerKg',
+    key: 'h2CostUsdPerKg',
     label: 'H2 cost',
-    unit: 'EUR/kg',
+    unit: 'USD/kg',
     min: 0.5,
     max: 12,
     step: 0.1,
     help: 'Delivered renewable hydrogen cost.',
   },
   {
-    key: 'h2KgPerTco2',
-    label: 'H2 required',
-    unit: 'kg/tCO2',
-    min: 130,
-    max: 230,
-    step: 1,
-    help: 'Hydrogen needed for jet-fuel-equivalent e-fuel per tonne of CO2 displaced.',
-  },
-  {
-    key: 'co2FeedstockCostEurPerTco2',
-    label: 'CO2 feedstock',
-    unit: 'EUR/tCO2',
+    key: 'co2FeedstockCostUsdPerTco2',
+    label: 'DAC CO2 cost',
+    unit: 'USD/tCO2',
     min: 0,
     max: 1000,
     step: 10,
-    help: 'Captured CO2 used as carbon feedstock for e-fuel.',
+    help: 'Captured CO2 cost used in both pathways: feedstock for e-fuel, removal for DACCS.',
   },
   {
-    key: 'dacStorageCostEurPerTco2',
-    label: 'DAC with storage',
-    unit: 'EUR/tCO2',
-    min: 50,
+    key: 'dacStorageCostUsdPerTco2',
+    label: 'Storage cost',
+    unit: 'USD/tCO2',
+    min: 0,
     max: 1500,
     step: 10,
-    help: 'Permanent carbon removal and geological storage cost.',
+    help: 'Additional permanent storage cost for the fossil jet + DACCS pathway.',
   },
   {
     key: 'jetFuelPriceUsdPerBbl',
@@ -90,21 +77,12 @@ export const inputFields: Array<{
     min: 20,
     max: 600,
     step: 5,
-    help: 'Fossil Jet A price before currency conversion.',
+    help: 'Fossil Jet A price.',
   },
   {
-    key: 'eurUsd',
-    label: 'EUR/USD',
-    unit: 'USD/EUR',
-    min: 0.8,
-    max: 1.4,
-    step: 0.01,
-    help: 'Dollars per euro. USD costs are divided by this value.',
-  },
-  {
-    key: 'synthesisCostEurPerGJ',
+    key: 'synthesisCostUsdPerGJ',
     label: 'Synthesis cost',
-    unit: 'EUR/GJ',
+    unit: 'USD/GJ',
     min: 0,
     max: 30,
     step: 0.5,

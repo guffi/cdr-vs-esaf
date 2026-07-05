@@ -15,14 +15,14 @@ describe('calculateFuelComparison', () => {
   it('matches the updated central-case cost outputs', () => {
     const result = calculateFuelComparison(defaultAssumptions);
 
-    expect(result.h2CostComponent).toBeCloseTo(1159, 0);
-    expect(result.co2FeedstockComponent).toBeCloseTo(450, 0);
-    expect(result.synthesisComponent).toBeCloseTo(113, 0);
-    expect(result.efuelCostEurPerTco2).toBeCloseTo(1722, 0);
-    expect(result.jetFuelCostEurPerTco2).toBeCloseTo(255, 0);
-    expect(result.bauCdrCostEurPerTco2).toBeCloseTo(755, 0);
-    expect(result.efuelPremiumEurPerTco2).toBeCloseTo(968, 0);
-    expect(result.breakEvenH2CostEurPerKg).toBeCloseTo(1.1, 1);
-    expect(result.breakEvenJetFuelUsdPerBbl).toBeCloseTo(560, 0);
+    expect(result.h2CostComponent).toBeCloseTo(605.5, 1);
+    expect(result.co2FeedstockComponent).toBeCloseTo(300, 0);
+    expect(result.synthesisComponent).toBeCloseTo(136, 0);
+    expect(result.efuelCostUsdPerTco2).toBeCloseTo(1042, 0);
+    expect(result.jetFuelCostUsdPerTco2).toBeCloseTo(290, 0);
+    expect(result.bauCdrCostUsdPerTco2).toBeCloseTo(1090, 0);
+    expect(result.efuelPremiumUsdPerTco2).toBeCloseTo(-49, 0);
+    expect(result.breakEvenH2CostUsdPerKg).toBeCloseTo(3.8, 1);
+    expect(result.breakEvenJetFuelUsdPerBbl).toBeCloseTo(97, 0);
   });
 });

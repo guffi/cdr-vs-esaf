@@ -9,12 +9,12 @@ export type CalculationResult = {
   h2CostComponent: number;
   co2FeedstockComponent: number;
   synthesisComponent: number;
-  efuelCostEurPerTco2: number;
-  jetFuelCostEurPerTco2: number;
-  bauCdrCostEurPerTco2: number;
-  efuelPremiumEurPerTco2: number;
-  efuelPremiumEurPerLitre: number;
-  breakEvenH2CostEurPerKg: number;
+  efuelCostUsdPerTco2: number;
+  jetFuelCostUsdPerTco2: number;
+  bauCdrCostUsdPerTco2: number;
+  efuelPremiumUsdPerTco2: number;
+  efuelPremiumUsdPerLitre: number;
+  breakEvenH2CostUsdPerKg: number;
   breakEvenJetFuelUsdPerBbl: number;
 };
 
@@ -25,20 +25,21 @@ export function calculateFuelComparison(a: Assumptions): CalculationResult {
   const kgFuelPerBarrel = a.litresPerBarrel * a.jetFuelDensityKgPerL;
   const tco2PerBarrel = (kgFuelPerBarrel * a.jetFuelCo2KgPerKgFuel) / 1000;
 
-  const h2CostComponent = a.h2KgPerTco2 * a.h2CostEurPerKg;
-  const co2FeedstockComponent = a.co2FeedstockCostEurPerTco2;
-  const synthesisComponent = gjFuelPerTco2 * a.synthesisCostEurPerGJ;
-  const efuelCostEurPerTco2 = h2CostComponent + co2FeedstockComponent + synthesisComponent;
+  const h2CostComponent = a.h2KgPerTco2 * a.h2CostUsdPerKg;
+  const co2FeedstockComponent = a.co2FeedstockCostUsdPerTco2;
+  const synthesisComponent = gjFuelPerTco2 * a.synthesisCostUsdPerGJ;
+  const efuelCostUsdPerTco2 = h2CostComponent + co2FeedstockComponent + synthesisComponent;
 
-  const jetFuelCostEurPerTco2 = (a.jetFuelPriceUsdPerBbl / a.eurUsd) / tco2PerBarrel;
-  const bauCdrCostEurPerTco2 = jetFuelCostEurPerTco2 + a.dacStorageCostEurPerTco2;
-  const efuelPremiumEurPerTco2 = efuelCostEurPerTco2 - bauCdrCostEurPerTco2;
-  const efuelPremiumEurPerLitre = efuelPremiumEurPerTco2 / litresFuelPerTco2;
+  const jetFuelCostUsdPerTco2 = a.jetFuelPriceUsdPerBbl / tco2PerBarrel;
+  const bauCdrCostUsdPerTco2 =
+    jetFuelCostUsdPerTco2 + a.co2FeedstockCostUsdPerTco2 + a.dacStorageCostUsdPerTco2;
+  const efuelPremiumUsdPerTco2 = efuelCostUsdPerTco2 - bauCdrCostUsdPerTco2;
+  const efuelPremiumUsdPerLitre = efuelPremiumUsdPerTco2 / litresFuelPerTco2;
 
-  const breakEvenH2CostEurPerKg =
-    (bauCdrCostEurPerTco2 - co2FeedstockComponent - synthesisComponent) / a.h2KgPerTco2;
+  const breakEvenH2CostUsdPerKg =
+    (bauCdrCostUsdPerTco2 - co2FeedstockComponent - synthesisComponent) / a.h2KgPerTco2;
   const breakEvenJetFuelUsdPerBbl =
-    (efuelCostEurPerTco2 - a.dacStorageCostEurPerTco2) * tco2PerBarrel * a.eurUsd;
+    (efuelCostUsdPerTco2 - a.co2FeedstockCostUsdPerTco2 - a.dacStorageCostUsdPerTco2) * tco2PerBarrel;
 
   return {
     kgFuelPerTco2,
@@ -49,12 +50,12 @@ export function calculateFuelComparison(a: Assumptions): CalculationResult {
     h2CostComponent,
     co2FeedstockComponent,
     synthesisComponent,
-    efuelCostEurPerTco2,
-    jetFuelCostEurPerTco2,
-    bauCdrCostEurPerTco2,
-    efuelPremiumEurPerTco2,
-    efuelPremiumEurPerLitre,
-    breakEvenH2CostEurPerKg,
+    efuelCostUsdPerTco2,
+    jetFuelCostUsdPerTco2,
+    bauCdrCostUsdPerTco2,
+    efuelPremiumUsdPerTco2,
+    efuelPremiumUsdPerLitre,
+    breakEvenH2CostUsdPerKg,
     breakEvenJetFuelUsdPerBbl,
   };
 }
