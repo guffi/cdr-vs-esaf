@@ -17,13 +17,20 @@ const fallback = {
 };
 
 function parseFuelPrice(html) {
-  const normalized = html.replace(/\s+/g, ' ');
-  const match = normalized.match(/global average jet fuel price last week[^$]*\$([0-9]+(?:\.[0-9]+)?)\/bbl/i);
+  const normalized = html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;|&#160;/gi, ' ')
+    .replace(/&dollar;|&#36;|&#x24;/gi, '$')
+    .replace(/&sol;|&#47;|&#x2f;/gi, '/')
+    .replace(/\s+/g, ' ');
+  const match = normalized.match(
+    /global average jet fuel price last week[\s\S]{0,300}?\$?\s*([0-9]+(?:\.[0-9]+)?)\s*\/\s*bbl/i,
+  );
   if (!match) {
     throw new Error('Could not find global average jet fuel price in IATA page');
   }
 
-  const sentenceMatch = normalized.match(/The global average jet fuel price last week[^.]+\./i);
+  const sentenceMatch = normalized.match(/The global average jet fuel price last week[^.]+\$?\s*[0-9]+(?:\.[0-9]+)?\s*\/\s*bbl\./i);
   return {
     valueUsdPerBbl: Number(match[1]),
     sourceName: 'IATA Jet Fuel Price Monitor',
