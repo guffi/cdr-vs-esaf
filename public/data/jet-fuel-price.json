@@ -1,9 +1,11 @@
 {
-  "valueUsdPerBbl": 116.63,
-  "sourceName": "IATA Jet Fuel Price Monitor",
-  "sourceUrl": "https://www.iata.org/en/publications/economics/fuel-monitor/",
-  "summary": "Global average jet fuel price",
-  "reportedText": "The global average jet fuel price last week fell 2.1% compared to the week before to $116.63/bbl.",
-  "fetchedAt": "2026-07-06T00:00:00.000Z",
-  "status": "fallback"
+  "valueUsdPerBbl": 117.09599999999999,
+  "valueUsdPerGallon": 2.788,
+  "observationDate": "2026-06-26",
+  "sourceName": "FRED / EIA WJFUELUSGULF",
+  "sourceUrl": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=WJFUELUSGULF",
+  "summary": "U.S. Gulf Coast kerosene-type jet fuel spot price, weekly",
+  "reportedText": "$2.788/gal on 2026-06-26, converted to $117.10/bbl.",
+  "fetchedAt": "2026-07-05T23:36:34.219Z",
+  "status": "live"
 }

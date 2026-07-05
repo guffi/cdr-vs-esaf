@@ -21,6 +21,8 @@ type ViewMode = 'tco2' | 'litre';
 
 type JetFuelBenchmark = {
   valueUsdPerBbl: number;
+  valueUsdPerGallon?: number;
+  observationDate?: string;
   sourceName: string;
   sourceUrl: string;
   summary: string;
@@ -69,9 +71,10 @@ function Field({
       </span>
       {showBenchmark ? (
         <span className="fieldBenchmark">
-          <b>Latest global average: {usdTwo.format(benchmark.valueUsdPerBbl)}/bbl</b>
+          <b>Latest benchmark: {usdTwo.format(benchmark.valueUsdPerBbl)}/bbl</b>
           <span>
-            {benchmark.sourceName}
+            {benchmark.summary}
+            {benchmark.observationDate ? `, ${benchmark.observationDate}` : ''}. {benchmark.sourceName}
             {benchmark.status === 'fallback' ? ' fallback' : ''}, fetched{' '}
             {new Date(benchmark.fetchedAt).toLocaleDateString('en-US', {
               month: 'short',
@@ -443,8 +446,9 @@ export default function Page() {
             editable assumptions, not forecasts.
           </p>
           <p>
-            The jet fuel benchmark is scraped at deploy time from the IATA Jet Fuel Price Monitor, which reports a
-            global average jet fuel price in USD per barrel.
+            The jet fuel benchmark is pulled at deploy time from FRED/EIA weekly U.S. Gulf Coast kerosene-type jet
+            fuel spot prices, converted from USD per gallon to USD per barrel. If that fetch fails, the site falls
+            back to the IATA global average shown in the source data file.
           </p>
           <p>
             Important: the comparison is expressed per tonne of CO2 from jet fuel combustion. It does not include all
