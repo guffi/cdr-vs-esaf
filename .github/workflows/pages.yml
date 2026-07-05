@@ -3,6 +3,8 @@ name: Deploy GitHub Pages
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: '17 6 * * *'
   workflow_dispatch:
 
 permissions:
@@ -32,6 +34,9 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Update jet fuel benchmark
+        run: npm run update:fuel-price
 
       - name: Build static site
         run: npm run build

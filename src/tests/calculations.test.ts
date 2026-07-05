@@ -20,9 +20,9 @@ describe('calculateFuelComparison', () => {
     expect(result.synthesisComponent).toBeCloseTo(136, 0);
     expect(result.efuelCostUsdPerTco2).toBeCloseTo(1042, 0);
     expect(result.jetFuelCostUsdPerTco2).toBeCloseTo(290, 0);
-    expect(result.bauCdrCostUsdPerTco2).toBeCloseTo(1090, 0);
-    expect(result.efuelPremiumUsdPerTco2).toBeCloseTo(-49, 0);
-    expect(result.breakEvenH2CostUsdPerKg).toBeCloseTo(3.8, 1);
-    expect(result.breakEvenJetFuelUsdPerBbl).toBeCloseTo(97, 0);
+    expect(result.bauCdrCostUsdPerTco2).toBeCloseTo(640, 0);
+    expect(result.efuelPremiumUsdPerTco2).toBeCloseTo(401, 0);
+    expect(result.breakEvenH2CostUsdPerKg).toBeCloseTo(1.2, 1);
+    expect(result.breakEvenJetFuelUsdPerBbl).toBeCloseTo(278, 0);
   });
 });

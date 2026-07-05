@@ -20,7 +20,7 @@ export const scenarios: Scenario[] = [
     assumptions: {
       h2CostUsdPerKg: 3.5,
       co2FeedstockCostUsdPerTco2: 300,
-      dacStorageCostUsdPerTco2: 500,
+      dacStorageCostUsdPerTco2: 50,
       jetFuelPriceUsdPerBbl: 116.63,
       synthesisCostUsdPerGJ: 10,
     },
@@ -31,7 +31,7 @@ export const scenarios: Scenario[] = [
     assumptions: {
       h2CostUsdPerKg: 2,
       co2FeedstockCostUsdPerTco2: 200,
-      dacStorageCostUsdPerTco2: 250,
+      dacStorageCostUsdPerTco2: 50,
       jetFuelPriceUsdPerBbl: 100,
       synthesisCostUsdPerGJ: 6,
     },
@@ -42,18 +42,18 @@ export const scenarios: Scenario[] = [
     assumptions: {
       h2CostUsdPerKg: 1,
       co2FeedstockCostUsdPerTco2: 100,
-      dacStorageCostUsdPerTco2: 300,
+      dacStorageCostUsdPerTco2: 50,
       jetFuelPriceUsdPerBbl: 150,
       synthesisCostUsdPerGJ: 4,
     },
   },
   {
     name: 'Expensive CDR',
-    note: 'Storage remains costly at $1,000/tCO2.',
+    note: 'Storage reaches the high end of this slider at $100/tCO2.',
     assumptions: {
       h2CostUsdPerKg: 4,
       co2FeedstockCostUsdPerTco2: 250,
-      dacStorageCostUsdPerTco2: 1000,
+      dacStorageCostUsdPerTco2: 100,
       jetFuelPriceUsdPerBbl: 100,
       synthesisCostUsdPerGJ: 6,
     },
@@ -64,7 +64,7 @@ export const scenarios: Scenario[] = [
     assumptions: {
       h2CostUsdPerKg: 4,
       co2FeedstockCostUsdPerTco2: 250,
-      dacStorageCostUsdPerTco2: 500,
+      dacStorageCostUsdPerTco2: 50,
       jetFuelPriceUsdPerBbl: 250,
       synthesisCostUsdPerGJ: 6,
     },
@@ -75,7 +75,7 @@ export const scenarios: Scenario[] = [
     assumptions: {
       h2CostUsdPerKg: 4,
       co2FeedstockCostUsdPerTco2: 250,
-      dacStorageCostUsdPerTco2: 500,
+      dacStorageCostUsdPerTco2: 50,
       jetFuelPriceUsdPerBbl: 50,
       synthesisCostUsdPerGJ: 6,
     },

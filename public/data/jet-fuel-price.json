@@ -1,0 +1,9 @@
+{
+  "valueUsdPerBbl": 116.63,
+  "sourceName": "IATA Jet Fuel Price Monitor",
+  "sourceUrl": "https://www.iata.org/en/publications/economics/fuel-monitor/",
+  "summary": "Global average jet fuel price",
+  "reportedText": "The global average jet fuel price last week fell 2.1% compared to the week before to $116.63/bbl.",
+  "fetchedAt": "2026-07-06T00:00:00.000Z",
+  "status": "fallback"
+}

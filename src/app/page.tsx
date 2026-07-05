@@ -19,15 +19,29 @@ import { makeScenarioUrl, readAssumptionsFromUrl } from '../lib/urlState';
 
 type ViewMode = 'tco2' | 'litre';
 
+type JetFuelBenchmark = {
+  valueUsdPerBbl: number;
+  sourceName: string;
+  sourceUrl: string;
+  summary: string;
+  reportedText: string;
+  fetchedAt: string;
+  status: 'live' | 'fallback';
+};
+
 function Field({
   field,
   value,
   onChange,
+  benchmark,
 }: {
   field: (typeof inputFields)[number];
   value: number;
   onChange: (key: EditableKey, value: number) => void;
+  benchmark?: JetFuelBenchmark | null;
 }) {
+  const showBenchmark = field.key === 'jetFuelPriceUsdPerBbl' && benchmark;
+
   return (
     <label className="field">
       <span className="fieldTitle">
@@ -53,6 +67,20 @@ function Field({
           onChange={(event) => onChange(field.key, Number(event.target.value))}
         />
       </span>
+      {showBenchmark ? (
+        <span className="fieldBenchmark">
+          <b>Latest global average: {usdTwo.format(benchmark.valueUsdPerBbl)}/bbl</b>
+          <span>
+            {benchmark.sourceName}
+            {benchmark.status === 'fallback' ? ' fallback' : ''}, fetched{' '}
+            {new Date(benchmark.fetchedAt).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </span>
+        </span>
+      ) : null}
       <span className="fieldHelp">{field.help}</span>
     </label>
   );
@@ -169,7 +197,7 @@ const assumptionsRows = [
   ['H2 cost', '3.50', 'USD/kg', 'Delivered renewable hydrogen cost'],
   ['H2 required', '173', 'kg/tCO2', 'Fixed hydrogen needed to make jet-fuel-equivalent e-fuel per tCO2 displaced'],
   ['DAC CO2 cost', '300', 'USD/tCO2', 'Captured CO2 cost used in both pathways'],
-  ['Storage cost', '500', 'USD/tCO2', 'Additional permanent storage cost for DACCS'],
+  ['Storage cost', '50', 'USD/tCO2', 'Additional permanent storage cost for DACCS'],
   ['Jet fuel price', '116.63', 'USD/bbl', 'Fossil jet fuel price'],
   ['Synthesis cost', '10.00', 'USD/GJ', 'RWGS / FT / fuel synthesis cost'],
   ['Jet fuel emission factor', '3.16', 'kgCO2/kg fuel', 'Combustion emissions factor'],
@@ -182,10 +210,33 @@ export default function Page() {
   const [assumptions, setAssumptions] = useState(defaultAssumptions);
   const [view, setView] = useState<ViewMode>('tco2');
   const [copied, setCopied] = useState(false);
+  const [jetFuelBenchmark, setJetFuelBenchmark] = useState<JetFuelBenchmark | null>(null);
   const result = useMemo(() => calculateFuelComparison(assumptions), [assumptions]);
 
   useEffect(() => {
     setAssumptions(readAssumptionsFromUrl(window.location.search));
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadJetFuelBenchmark() {
+      try {
+        const response = await fetch(new URL('data/jet-fuel-price.json', window.location.href), {
+          signal: controller.signal,
+        });
+        if (!response.ok) return;
+        const data = (await response.json()) as JetFuelBenchmark;
+        if (Number.isFinite(data.valueUsdPerBbl)) {
+          setJetFuelBenchmark(data);
+        }
+      } catch {
+        // The calculator remains usable when the benchmark cannot be loaded.
+      }
+    }
+
+    loadJetFuelBenchmark();
+    return () => controller.abort();
   }, []);
 
   const setNumber = (key: EditableKey, value: number) => {
@@ -216,7 +267,7 @@ export default function Page() {
             A transparent calculator for comparing the cost of replacing aviation fuel with electrofuels versus
             continuing fossil jet fuel use and neutralizing emissions with permanent carbon removal.
           </p>
-          <p className="note">Default case: $3.50/kg H2, $300/tCO2 DAC CO2, and fixed hydrogen intensity.</p>
+          <p className="note">Default case: $3.50/kg H2, $300/tCO2 DAC CO2, $50/tCO2 storage, and fixed hydrogen intensity.</p>
         </div>
         <div className="heroActions">
           <button onClick={() => setAssumptions(defaultAssumptions)}>Reset assumptions</button>
@@ -231,7 +282,13 @@ export default function Page() {
             <span>editable live model</span>
           </div>
           {inputFields.map((field) => (
-            <Field key={field.key} field={field} value={assumptions[field.key]} onChange={setNumber} />
+            <Field
+              key={field.key}
+              field={field}
+              value={assumptions[field.key]}
+              onChange={setNumber}
+              benchmark={jetFuelBenchmark}
+            />
           ))}
         </aside>
 
@@ -384,6 +441,10 @@ export default function Page() {
             "Removals are better than some reductions - The case of electrofuels for aviation" and the accompanying
             calculator. The default values here are updated to a today-like central case and should be treated as
             editable assumptions, not forecasts.
+          </p>
+          <p>
+            The jet fuel benchmark is scraped at deploy time from the IATA Jet Fuel Price Monitor, which reports a
+            global average jet fuel price in USD per barrel.
           </p>
           <p>
             Important: the comparison is expressed per tonne of CO2 from jet fuel combustion. It does not include all
